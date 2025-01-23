@@ -17,6 +17,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  invoice Invoice[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -58,4 +60,25 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+model Invoice {
+  id          String @id @default(cuid())
+  name        String
+  amount      Int
+  email       String
+  description String
+
+  status    Status   @default(OPEN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+enum Status {
+  OPEN
+  PENDING
+  PAID
+  CANCELLED
 }
