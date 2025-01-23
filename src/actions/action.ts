@@ -4,11 +4,11 @@ import { prisma } from "@/db/db";
 import { signupSchema, signupSchemaType } from "@/zod/types";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { Status } from "@prisma/client";
 
 export async function signupAction(values: signupSchemaType) {
-  console.log(values);
   const parsedData = signupSchema.parse(values);
-  console.log(parsedData);
   if (
     !parsedData ||
     !parsedData.email ||
@@ -20,16 +20,12 @@ export async function signupAction(values: signupSchemaType) {
     };
   }
 
-  console.log("Data is valid");
   try {
-    console.log("inside try");
     const existingUser = await prisma.user.findUnique({
       where: {
         email: parsedData.email,
       },
     });
-
-    console.log(existingUser);
 
     if (existingUser) {
       return {
@@ -39,7 +35,6 @@ export async function signupAction(values: signupSchemaType) {
 
     const hasedPassword = await bcrypt.hash(parsedData.password, 10);
 
-    console.log(hasedPassword);
     await prisma.user.create({
       data: {
         name: parsedData.name,
@@ -47,11 +42,30 @@ export async function signupAction(values: signupSchemaType) {
         password: hasedPassword,
       },
     });
-
-    console.log("User created successfully");
-
     redirect("/dashboard");
   } catch (error) {
     console.log("Error signing up", error);
+  }
+}
+
+export async function updateInvoiceStatus(
+  invoiceId: string,
+  newStatus: Status
+) {
+  try {
+    await prisma.invoice.update({
+      where: {
+        id: invoiceId,
+      },
+      data: {
+        status: newStatus,
+      },
+    });
+
+    revalidatePath(`/dashboard/${invoiceId}`);
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: "Failed to update status" };
   }
 }

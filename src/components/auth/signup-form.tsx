@@ -102,7 +102,7 @@ export function SignupForm() {
                 )}
               />
 
-              <Button className="w-full">
+              <Button className="w-full" disabled={loading}>
                 {loading ? "Loading..." : "Signup"}
               </Button>
             </form>

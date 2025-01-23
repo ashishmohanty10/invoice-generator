@@ -97,7 +97,7 @@ export function SignInForm() {
                 )}
               />
 
-              <Button className="w-full">
+              <Button className="w-full" disabled={loading}>
                 {loading ? "Loading..." : "Signin"}
               </Button>
             </form>
