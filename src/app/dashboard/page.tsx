@@ -8,9 +8,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 interface DashboardPageProps {
-  searchParams: {
-    page?: string;
-  };
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function DashboardPage({
@@ -23,7 +21,7 @@ export default async function DashboardPage({
     redirect("/signin");
   }
 
-  const currentPage = Number(searchParams.page) || 1;
+  const currentPage = Number((await searchParams).page) || 1;
   const pageSize = 10;
 
   const totalInvoices = await prisma.invoice.count();
