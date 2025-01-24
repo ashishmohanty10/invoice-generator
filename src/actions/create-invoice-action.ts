@@ -5,6 +5,7 @@ import { prisma } from "@/db/db";
 import { createInvoiceSchemaType } from "@/zod/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { sendInvoiceEmail } from "@/lib/send-invoice-email";
 
 export async function createInvoiceAction(values: createInvoiceSchemaType) {
   const session = await auth();
@@ -26,12 +27,16 @@ export async function createInvoiceAction(values: createInvoiceSchemaType) {
         description: values.description || "",
         email: values.email,
         userId,
+        status: "PENDING",
       },
     });
-    revalidatePath("/dashboard");
 
+    await sendInvoiceEmail(invoice);
+
+    revalidatePath("/dashboard");
     return { success: true, id: invoice.id };
   } catch (error) {
-    console.log("something went wrong", error);
+    console.error("Error creating invoice:", error);
+    return { success: false, id: "", error: "Failed to create invoice" };
   }
 }

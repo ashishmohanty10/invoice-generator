@@ -29,8 +29,8 @@ export function SignupForm() {
   });
 
   async function onSubmit(values: signupSchemaType) {
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await signupAction(values);
 
       if (response?.error) {

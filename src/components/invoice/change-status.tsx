@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { InvoiceResult } from "@/types/invoice";
 
 const availableStatus: Array<{
   id: number;
@@ -52,17 +53,7 @@ const availableStatus: Array<{
 ];
 
 interface ChangeStatusProps {
-  result: {
-    name: string;
-    id: string;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    amount: number;
-    description: string;
-    status: Status;
-  } | null;
+  result: InvoiceResult | null;
 }
 
 export function ChangeStatus({ result }: ChangeStatusProps) {
@@ -74,7 +65,7 @@ export function ChangeStatus({ result }: ChangeStatusProps) {
     startTransition(async () => {
       const response = await updateInvoiceStatus(result.id, newStatus);
 
-      if (response.success) {
+      if (response?.success) {
         toast.success(`Status updated to ${newStatus}`);
       } else {
         toast.error("Failed to update status");

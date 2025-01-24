@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./db/db";
 import Google from "next-auth/providers/google";
+import Github from "next-auth/providers/github";
 import Credential from "next-auth/providers/credentials";
 import { loginSchema } from "./zod/types";
 import bcrypt from "bcryptjs";
@@ -17,13 +18,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         try {
-          const { email, password } = await loginSchema.parseAsync(credentials);
+          const parsedData = loginSchema.safeParse(credentials);
+          if (!parsedData.success) {
+            return null;
+          }
+          const { email, password } = parsedData.data;
 
           const user = await prisma.user.findUnique({
             where: { email },
           });
 
-          if (!user) {
+          if (!user || !user.password) {
             throw new Error("User not found");
           }
 
@@ -42,6 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     Google,
+    Github,
   ],
   pages: {
     signIn: "/signin",

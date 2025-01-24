@@ -8,12 +8,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "../ui/badge";
-import { prisma } from "@/db/db";
+
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { InvoiceResult } from "@/types/invoice";
 
-export async function TableDemo() {
-  const data = await prisma.invoice.findMany({});
+interface InvoiceTableProps {
+  invoices: InvoiceResult[];
+}
 
+export function InvoiceTable({ invoices }: InvoiceTableProps) {
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -27,7 +31,7 @@ export async function TableDemo() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((item) => (
+        {invoices.map((item) => (
           <TableRow key={item.id}>
             <TableCell className="font-medium">
               <Link href={`/dashboard/${item.id}`}>
@@ -41,8 +45,21 @@ export async function TableDemo() {
               <Link href={`/dashboard/${item.id}`}>{item.email}</Link>
             </TableCell>
             <TableCell>
-              <Link href={`/dashboard/${item.id}`}>
-                <Badge>{item.status}</Badge>
+              <Link
+                href={`/dashboard/${item.id}`}
+                className="flex items-center w-full"
+              >
+                <Badge
+                  className={cn(
+                    "status-badge",
+                    item.status === "OPEN" && "status-badge-open",
+                    item.status === "CANCELLED" && "status-badge-cancelled",
+                    item.status === "PAID" && "status-badge-paid",
+                    item.status === "PENDING" && "status-badge-pending"
+                  )}
+                >
+                  {item.status}
+                </Badge>
               </Link>
             </TableCell>
             <TableCell className="text-right">

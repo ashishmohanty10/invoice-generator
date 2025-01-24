@@ -4,6 +4,7 @@ import { sideBar } from "@/lib/constant";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserProfile } from "./user-profile";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export function Sidebar() {
         </p>
       </div>
 
-      <div className="py-10 w-full flex flex-col gap-2">
+      <div className="py-10 w-full h-full flex flex-col gap-2 justify-start items-start">
         {sideBar.map((items) => (
           <Link
             key={items.id}
@@ -31,6 +32,7 @@ export function Sidebar() {
           </Link>
         ))}
       </div>
+      <UserProfile />
     </div>
   );
 }
